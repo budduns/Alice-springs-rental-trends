@@ -9,7 +9,7 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write   # IMPORTANT: allows the job to commit JSON back to the repo
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
           node-version: '20'
 
       - name: Install deps
-        run: npm install
+        run: npm install            # npm ci can fail if package-lock.json doesn't exist
 
       - name: Run scraper
         run: npm run scrape
@@ -36,3 +36,4 @@ jobs:
           else
             echo "No changes."
           fi
+
