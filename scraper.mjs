@@ -1,6 +1,5 @@
 /**
  * Alice Springs Rentals Scraper (Node 20 ESM + Cheerio)
- *
  * Fix: Use Cheerio ESM named export (import { load } from 'cheerio')
  */
 
@@ -18,27 +17,23 @@ const DATA_DIR = path.join(__dirname, 'data');
 const LISTINGS_PATH = path.join(DATA_DIR, 'listings.json');
 const META_PATH = path.join(DATA_DIR, '_meta.json');
 
+// ---- Helpers ----
+const ONE_DAY_MS = 86_400_000;
+const todayStr = new Date().toISOString().slice(0, 10);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function daysBetween(isoStart, isoEnd) {
   try {
     const a = new Date(isoStart);
     const b = new Date(isoEnd);
-    return Math.max(1, Math.floor((b - a) / 86400000) + 1);
-  } catch { return 1; }
-};
+    return Math.max(1, Math.floor((b - a) / ONE_DAY_MS) + 1);
+  } catch {
+    return 1;
+  }
+}
+
 const textOrNull = (s) => (s ? s.trim() : null);
 
-function extractFields($, card, linkAbs) {
-  let address = textOrNull($(card).find('[data-testid="listing-card-address"]').first().text());
-  if (!address) address = textOrNull($(card).find('.residential-card__address-heading').first().text());
-  if (!address) address = textOrNull($(card).find('address').first().text());
-  if (!address) address = textOrNull($(card).find('h2, h3, .address').first().text());
-
-  let price = textOrNull($(card).find('[data-testid="listing-card-price"]').first().text());
-  if (!price) price = textOrNull($(card).find('.property-price, .residential-card__price').first().text());
-  if (!price) {
-    const moneyNode = $(card).find(':contains("$")').filter(function findDollar() {
-      return $(this).children().length === 0 && /\$/.test($(this).text());
-    }).first();
-    price = textOrNull(moneyNode.text());
   }
 
   let beds = null;
@@ -197,4 +192,5 @@ main().catch((e) => {
   console.error(e);
   process.exitCode = 1;
 });
+
 
