@@ -1,39 +1,26 @@
-name: Daily refresh
+name: Daily Scrape
 
 on:
   schedule:
-    - cron: "15 20 * * *"   # 20:15 UTC daily (≈ 06:15 AEST)
+    - cron: '15 20 * * *'  # 20:15 UTC (~06:15 AEST)
   workflow_dispatch:
 
 jobs:
-  refresh:
+  scrape:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # IMPORTANT: allows the job to commit JSON back to the repo
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install deps
-        run: npm install            # npm ci can fail if package-lock.json doesn't exist
-
-      - name: Run scraper
-        run: npm run scrape
-
-      - name: Commit & push if changed
+      - run: npm install
+      - run: npm run scrape
+      - name: Commit changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add -A
-            git commit -m "chore: daily listings refresh"
-            git push
-          else
-            echo "No changes."
-          fi
-
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add data/ || true
+          git commit -m "Update listings" || echo "No changes to commit"
+          git push
