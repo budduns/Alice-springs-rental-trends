@@ -1,259 +1,138 @@
-/* Alice Springs Rentals – polished UI & “New first” logic */
+let listings = [];
+let meta = {};
+let currentPage = 0;
+const pageSize = 10;
 
-// Labels
-const LABELS = {
-  lastRefreshed: 'Last refreshed',
-  daysAvailable: 'Days available',
-  daysToLease: 'Days to lease',
-};
-
-// State
-let ALL = [];
-let PAGE = 1;
-const PAGE_SIZE = 20;
-let onlyNew = false; // quick filter
-const qs = (s) => document.querySelector(s);
-
-// Elements
-const live = qs('#live');
-const tbody = qs('#table tbody');
-const searchEl = qs('#search');
-const clearSearchEl = qs('#clearSearch');
-const minBedsEl = qs('#minBeds');
-const statusEl = qs('#statusFilter');
-const sortEl = qs('#sort');
-
-// pagination (top & bottom)
-const prevEl = qs('#prev');
-const nextEl = qs('#next');
-const pageInfoEl = qs('#pageInfo');
-const prevTopEl = qs('#prevTop');
-const nextTopEl = qs('#nextTop');
-const pageInfoTopEl = qs('#pageInfoTop');
-
-// quick chips
-const chipNewEl = qs('#chipNew');
-const chip3plusEl = qs('#chip3plus');
-
-// KPIs
-const kpiNewEl = qs('#kpiNew');
-const kpiAvailEl = qs('#kpiAvail');
-const kpiLeasedEl = qs('#kpiLeased');
-
-// Footer meta
-const metaEl = qs('#meta');
-
-function isNew(item) {
-  if (item.status !== 'Available') return false;
-  if (!item.firstSeen) return false;
-  const d = daysBetween(item.firstSeen, todayStr());
-  return d <= 3; // new within last 3 days
+function daysBetween(start, end) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  return Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-function daysBetween(d1, d2) {
-  return Math.max(0, Math.floor((Date.parse(d2) - Date.parse(d1)) / 86400000));
-}
-
-function parsePriceToNumber(priceStr) {
-  if (!priceStr) return null;
-  const m = priceStr.replace(/,/g, '').match(/\$?\s*([\d\.]+)/);
-  return m ? parseInt(m[1], 10) : null;
-}
-function getDaysValue(item) {
-  return item.status === 'Available' ? item.daysAvailable : (item.daysToLease ?? null);
-}
-function heatClass(days) {
-  if (days == null) return '';
-  if (days <= 7) return 'heat-1';
-  if (days <= 21) return 'heat-2';
-  return 'heat-3';
+async function loadData() {
+  listings = await fetch('data/listings.json').then(r => r.json());
+  meta = await fetch('data/_meta.json').then(r => r.json());
+  const tz = 'Australia/Brisbane';
+  const refreshed = new Date(meta.generatedAt).toLocaleString('en-AU', { timeZone: tz, dateStyle: 'full', timeStyle: 'short' });
+  document.getElementById('lastRefreshed').textContent = refreshed || 'N/A';
+  updateTable();
 }
 
-async function getJSON(url) {
-  const res = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.json();
-}
+function getFilteredSorted() {
+  const searchVal = document.getElementById('search').value.toLowerCase();
+  const minB = parseInt(document.getElementById('minBeds').value) || 0;
+  const st = document.getElementById('statusFilter').value;
+  const isNewChipActive = document.querySelector('.chip[data-filter="new"]').classList.contains('active');
+  const is3BedsChipActive = document.querySelector('.chip[data-filter="3beds"]').classList.contains('active');
+  const sortVal = document.getElementById('sort').value;
 
-// Filtering + sorting pipeline
-function applyFiltersSort() {
-  const term = (searchEl.value || '').toLowerCase().trim();
-  let minBeds = parseInt(minBedsEl.value || '0', 10);
-  const status = statusEl.value;
-
-  if (chip3plusEl?.getAttribute('aria-pressed') === 'true' && (!minBeds || minBeds < 3)) {
-    minBeds = 3;
-    if (minBedsEl) minBedsEl.value = '3';
-  }
-
-  let rows = ALL.filter(it => {
-    const addrOk = !term || (it.address || '').toLowerCase().includes(term);
-    const bedsOk = !Number.isFinite(minBeds) ? true : ((it.beds ?? 0) >= minBeds);
-    const statusOk = (status === 'All') ? true : (it.status === status);
-    const newOk = !onlyNew || isNew(it);
-    return addrOk && bedsOk && statusOk && newOk;
+  let filtered = listings.filter(l => {
+    if (searchVal && !l.address.toLowerCase().includes(searchVal) && !l.price.toLowerCase().includes(searchVal)) return false;
+    if (l.beds < minB) return false;
+    if (st && l.status !== st) return false;
+    if (isNewChipActive && (l.status !== 'Available' || l.daysAvailable > 3)) return false;
+    if (is3BedsChipActive && l.beds < 3) return false;
+    return true;
   });
 
-  const by = sortEl.value;
-  rows.sort((a, b) => {
-    if (by === 'newFirst') {
-      const an = isNew(a) ? 1 : 0;
-      const bn = isNew(b) ? 1 : 0;
-      if (bn - an !== 0) return bn - an; // new first
-      // then available first
-      const s = (a.status === 'Available' ? 0 : 1) - (b.status === 'Available' ? 0 : 1);
-      if (s !== 0) return s;
-      // then most recently seen available
-      return String(b.lastSeenAvailable).localeCompare(String(a.lastSeenAvailable));
-    }
-
-    const daysA = getDaysValue(a);
-    const daysB = getDaysValue(b);
-    const priceA = parsePriceToNumber(a.price) ?? Number.POSITIVE_INFINITY;
-    const priceB = parsePriceToNumber(b.price) ?? Number.POSITIVE_INFINITY;
-    const bedsA = a.beds ?? -1;
-    const bedsB = b.beds ?? -1;
-
-    switch (by) {
-      case 'bedsAsc': return bedsA - bedsB;
-      case 'bedsDesc': return bedsB - bedsA;
-      case 'priceAsc': return priceA - priceB;
-      case 'priceDesc': return priceB - priceA;
-      case 'daysAsc': return (daysA ?? 1e9) - (daysB ?? 1e9);
-      case 'daysDesc': return (daysB ?? -1) - (daysA ?? -1);
-      default: {
-        const s = (a.status === 'Available' ? 0 : 1) - (b.status === 'Available' ? 0 : 1);
-        if (s !== 0) return s;
-        return String(b.lastSeenAvailable).localeCompare(String(a.lastSeenAvailable));
-      }
+  filtered.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'Available' ? -1 : 1;
+    let aVal, bVal;
+    switch (sortVal) {
+      case 'bedsAsc': return a.beds - b.beds;
+      case 'bedsDesc': return b.beds - a.beds;
+      case 'priceAsc':
+        aVal = parseInt(a.price.replace(/\D/g, '')) || 0;
+        bVal = parseInt(b.price.replace(/\D/g, '')) || 0;
+        return aVal - bVal;
+      case 'priceDesc':
+        aVal = parseInt(a.price.replace(/\D/g, '')) || 0;
+        bVal = parseInt(b.price.replace(/\D/g, '')) || 0;
+        return bVal - aVal;
+      case 'daysAsc':
+        aVal = a.status === 'Available' ? a.daysAvailable : a.daysToLease;
+        bVal = b.status === 'Available' ? b.daysAvailable : b.daysToLease;
+        return aVal - bVal;
+      case 'daysDesc':
+        aVal = a.status === 'Available' ? a.daysAvailable : a.daysToLease;
+        bVal = b.status === 'Available' ? b.daysAvailable : b.daysToLease;
+        return bVal - aVal;
+      case 'newFirst':
+      default:
+        return a.daysAvailable - b.daysAvailable; // Small days first (new)
     }
   });
 
-  return rows;
+  return filtered;
 }
 
-// Rendering
-function render(rows, page = 1) {
-  const total = rows.length;
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  PAGE = Math.min(Math.max(1, page), pageCount);
-
-  const start = (PAGE - 1) * PAGE_SIZE;
-  const chunk = rows.slice(start, start + PAGE_SIZE);
-
-  tbody.innerHTML = chunk.map(item => {
-    const days = getDaysValue(item);
-    const daysLabel = item.status === 'Available' ? LABELS.daysAvailable : LABELS.daysToLease;
-    const daysClass = `days ${heatClass(days)}`;
-    const statusClass = item.status === 'Available' ? 'badge available' : 'badge leased';
-    const safeLink = (item.link || '#');
-    const newTag = isNew(item) ? `<span class="tag-new">NEW</span>` : '';
-
-    return `<tr class="${isNew(item) ? 'new-row' : ''}">
-      <td>
-        <div class="address">
-          ${newTag}
-          <a class="address__text" href="${safe|| '—')}</a>
-        </div>
-      </td>
-      <td class="td-numeric">${item.beds ?? '—'}</td>
-      <td class="td-numeric">${escapeHtml(item.price || '—')}</td>
-      <td><span class="${statusClass}">${item.status}</span></td>
-      <td class="td-numeric"><span class="${daysClass}">${days ?? '—'}</span></td>
-    </tr>`;
-  }).join('');
-
-  // pagination sync (bottom)
-  prevEl.disabled = (PAGE <= 1);
-  nextEl.disabled = (PAGE >= pageCount);
-  pageInfoEl.textContent = `Page ${PAGE} / ${pageCount} — ${total} listing${total === 1 ? '' : 's'}`;
-
-  // pagination sync (top)
-  prevTopEl.disabled = (PAGE <= 1);
-  nextTopEl.disabled = (PAGE >= pageCount);
-  pageInfoTopEl.textContent = pageInfoEl.textContent;
-
-  live.textContent = `Loaded ${total} listing${total === 1 ? '' : 's'}.`;
+function renderTable(pageData) {
+  const tbody = document.querySelector('#listingsTable tbody');
+  tbody.innerHTML = '';
+  const todayStr = new Date().toISOString().split('T')[0];
+  pageData.forEach(l => {
+    const tr = document.createElement('tr');
+    const addressTd = document.createElement('td');
+    addressTd.innerHTML = `<a href="${l.link}" target="_blank">${l.address}</a>`;
+    if (daysBetween(l.firstSeen, todayStr) <= 3) addressTd.innerHTML += ' <span class="badge new">NEW</span>';
+    tr.appendChild(addressTd);
+    tr.appendChild(document.createElement('td')).textContent = l.beds;
+    tr.appendChild(document.createElement('td')).textContent = l.price;
+    const statusTd = document.createElement('td');
+    statusTd.innerHTML = `<span class="badge ${l.status.toLowerCase()}">${l.status}</span>`;
+    tr.appendChild(statusTd);
+    tr.appendChild(document.createElement('td')).textContent = l.status === 'Available' ? l.daysAvailable : l.daysToLease;
+    tbody.appendChild(tr);
+  });
 }
 
-function updateKpis(all) {
-  const avail = all.filter(x => x.status === 'Available').length;
-  const leased = all.filter(x => x.status === 'Leased').length;
-  const fresh = all.filter(isNew).length;
-  kpiAvailEl.textContent = String(avail);
-  kpiLeasedEl.textContent = String(leased);
-  kpiNewEl.textContent = String(fresh);
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// Init
-async function init() {
-  try {
-    const [listings, meta] = await Promise.all([
-      getJSON('./data/listings.json').catch(() => []),
-      getJSON('./data/_meta.json').catch(() => ({ generatedAt: null })),
-    ]);
-    ALL = Array.isArray(listings) ? listings : [];
-    // Default filters: Available, New first
-    statusEl.value = 'Available';
-    sortEl.value = 'newFirst';
-    updateKpis(ALL);
-
-    const rows = applyFiltersSort();
-    render(rows, 1);
-
-    if (meta?.generatedAt) {
-      const dt = new Date(meta.generatedAt);
-      metaEl.textContent = `${LABELS.lastRefreshed}: ${dt.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })}`;
-    } else {
-      metaEl.textContent = `${LABELS.lastRefreshed}: n/a`;
+function updatePagination(filtered) {
+  const pages = Math.ceil(filtered.length / pageSize);
+  const tops = document.getElementById('paginationTop');
+  const bottoms = document.getElementById('paginationBottom');
+  [tops, bottoms].forEach(pag => {
+    pag.innerHTML = '';
+    for (let i = 0; i < pages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i + 1;
+      if (i === currentPage) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        currentPage = i;
+        updateTable();
+      });
+      pag.appendChild(btn);
     }
-  } catch (err) {
-    live.textContent = `Failed to load data: ${err.message}`;
-  }
+  });
 }
 
-// Events
-function reapply(resetPage = true) {
-  const rows = applyFiltersSort();
-  render(rows, resetPage ? 1 : PAGE);
+function updateTable() {
+  const filtered = getFilteredSorted();
+  const start = currentPage * pageSize;
+  const pageData = filtered.slice(start, start + pageSize);
+  renderTable(pageData);
+  updatePagination(filtered);
+  document.getElementById('liveRegion').textContent = `Showing ${filtered.length} listings`;
 }
 
-searchEl.addEventListener('input', () => reapply(true));
-clearSearchEl.addEventListener('click', () => { searchEl.value = ''; reapply(true); });
-minBedsEl.addEventListener('input', () => reapply(true));
-statusEl.addEventListener('change', () => reapply(true));
-sortEl.addEventListener('change', () => reapply(true));
-
-prevEl.addEventListener('click', () => { PAGE = Math.max(1, PAGE - 1); reapply(false); });
-nextEl.addEventListener('click', () => { PAGE = PAGE + 1; reapply(false); });
-prevTopEl.addEventListener('click', () => { PAGE = Math.max(1, PAGE - 1); reapply(false); });
-nextTopEl.addEventListener('click', () => { PAGE = PAGE + 1; reapply(false); });
-
-chipNewEl.addEventListener('click', () => {
-  const on = chipNewEl.getAttribute('aria-pressed') === 'true';
-  chipNewEl.setAttribute('aria-pressed', String(!on));
-  onlyNew = !on;
-  // If turning on, also force status to Available
-  if (onlyNew) statusEl.value = 'Available';
-  reapply(true);
-});
-
-chip3plusEl.addEventListener('click', () => {
-  const on = chip3plusEl.getAttribute('aria-pressed') === 'true';
-  chip3plusEl.setAttribute('aria-pressed', String(!on));
-  if (!on) {
-    minBedsEl.value = '3';
-  } else {
-    if (parseInt(minBedsEl.value || '0', 10) === 3) minBedsEl.value = '';
-  }
-  reapply(true);
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  document.getElementById('search').addEventListener('input', () => { currentPage = 0; updateTable(); });
+  document.getElementById('clearSearch').addEventListener('click', () => {
+    document.getElementById('search').value = '';
+    currentPage = 0;
+    updateTable();
+  });
+  document.getElementById('minBeds').addEventListener('input', () => { currentPage = 0; updateTable(); });
+  document.getElementById('statusFilter').addEventListener('change', () => { currentPage = 0; updateTable(); });
+  document.getElementById('sort').addEventListener('change', () => { currentPage = 0; updateTable(); });
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      currentPage = 0;
+      updateTable();
+    });
+  });
 });
 
 init();
+
