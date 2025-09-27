@@ -1,107 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alice Springs Rentals – Daily Auto-Update</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="dark light" />
-  ./styles.css
+  <link rel="stylesheet" href="styles.css?v=2025-09-28">
 </head>
 <body>
-  <header class="container header">
-    <div class="header__row">
-      <div>
-        <h1>Alice Springs Rentals</h1>
-        <p class="subtitle">Daily auto-update from REA (Alice Springs – Greater Region)</p>
-      </div>
-      <div class="kpis" aria-label="Summary">
-        <span class="kpi"><strong id="kpiNew">0</strong><span>New (≤3d)</span></span>
-        <span class="kpi"><strong id="kpiAvail">0</strong><span>Available</span></span>
-        <span class="kpi"><strong id="kpiLeased">0</strong><span>Leased</span></span>
-      </div>
-    </div>
-
-    <!-- Search bar -->
-    <div class="searchbar">
-      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-      <input id="search" type="search" placeholder="Search address, suburb or postcode…" aria-label="Search address" />
-      <button id="clearSearch" type="button" class="ghost" aria-label="Clear search">✕</button>
-    </div>
-
-    <!-- Controls -->
-    <section class="controls" aria-label="Filters">
-      <label class="control">
-        <span>Min beds</span>
-        <input id="minBeds" type="number" min="0" step="1" placeholder="0" />
-      </label>
-
-      <label class="control">
-        <span>Status</span>
-        <select id="statusFilter">
-          <option value="All">All</option>
-          <option value="Available" selected>Only Available</option>
-          <option value="Leased">Only Leased</option>
-        </select>
-      </label>
-
-      <label class="control">
-        <span>Sort</span>
-        <select id="sort">
-          <option value="newFirst" selected>New first (≤3d)</option>
-          <option value="default">Status (Available first)</option>
-          <option value="bedsAsc">Beds ↑</option>
-          <option value="bedsDesc">Beds ↓</option>
-          <option value="priceAsc">Price ↑</option>
-          <option value="priceDesc">Price ↓</option>
-          <option value="daysAsc">Days ↑</option>
-          <option value="daysDesc">Days ↓</option>
-        </select>
-      </label>
-
-      <div class="quick-chips" role="group" aria-label="Quick filters">
-        <button id="chipNew" type="button" class="chip" aria-pressed="false">New (≤3d)</button>
-        <button id="chip3plus" type="button" class="chip" aria-pressed="false">3+ beds</button>
-      </div>
-    </section>
-
-    <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-  </header>
-
-  <main class="container">
-    <div class="pagination top">
-      <button id="prevTop" type="button" aria-label="Previous page">‹ Prev</button>
-      <span id="pageInfoTop"></span>
-      <button id="nextTop" type="button" aria-label="Next page">Next ›</button>
-    </div>
-
-    <div class="table-wrap">
-      <table id="table">
-        <caption class="sr-only">Alice Springs rental listings</caption>
-        <thead>
-          <tr>
-            <th>Address</th>
-            <th class="th-numeric">Beds</th>
-            <th class="th-numeric">Price</th>
-            <th>Status</th>
-            <th class="th-numeric">Days</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <nav class="pagination bottom">
-      <button id="prev" type="button" aria-label="Previous page">‹ Prev</button>
-      <span id="pageInfo"></span>
-      <button id="next" type="button" aria-label="Next page">Next ›</button>
-    </nav>
-
-    <footer class="footer">
-      <span id="meta"></span>
-      <span class="muted">Source list: <a href="https://www.realestate.com.au/rent/in-alice+springs+-+greater+region,+nt/list-1?finementREA</a></span>
-    </footer>
-  </main>
-
-  ./app.js</script>
+  <h1>Alice Springs Rental Trends</h1>
+  <div id="controls">
+    <input id="search" type="text" placeholder="Search address or price...">
+    <button id="clearSearch">Clear</button>
+    <input id="minBeds" type="number" min="1" placeholder="Min beds">
+    <select id="statusFilter">
+      <option value="">All</option>
+      <option value="Available">Available</option>
+      <option value="Leased">Leased</option>
+    </select>
+    <select id="sort">
+      <option value="newFirst">New First</option>
+      <option value="bedsAsc">Beds ↑</option>
+      <option value="bedsDesc">Beds ↓</option>
+      <option value="priceAsc">Price ↑</option>
+      <option value="priceDesc">Price ↓</option>
+      <option value="daysAsc">Days ↑</option>
+      <option value="daysDesc">Days ↓</option>
+    </select>
+    <button class="chip" data-filter="new">New (≤3d)</button>
+    <button class="chip" data-filter="3beds">3+ beds</button>
+  </div>
+  <div id="paginationTop"></div>
+  <table id="listingsTable">
+    <caption class="sr-only">Rental listings table for Alice Springs</caption>
+    <thead>
+      <tr>
+        <th>Address</th>
+        <th>Beds</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Days</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div id="paginationBottom"></div>
+  <div aria-live="polite" id="liveRegion"></div>
+  <footer>Last refreshed: <span id="lastRefreshed">Loading...</span></footer>
+  <script src="app.js?v=2025-09-28"></script>
 </body>
 </html>
