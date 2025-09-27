@@ -1,23 +1,23 @@
-/* eslint-disable no-console */
+/**
+ * Alice Springs Rentals Scraper (Node 20 ESM + Cheerio)
+ *
+ * Fix: Use Cheerio ESM named export (import { load } from 'cheerio')
+ */
+
+import { load } from 'cheerio';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import cheerio from 'cheerio';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ---- Config ----
 const TARGET_URL = 'https://www.realestate.com.au/rent/in-alice+springs+-+greater+region,+nt/list-1?source=refinement';
 const DATA_DIR = path.join(__dirname, 'data');
-const DATA_PATH = path.join(DATA_DIR, 'listings.json');
+const LISTINGS_PATH = path.join(DATA_DIR, 'listings.json');
 const META_PATH = path.join(DATA_DIR, '_meta.json');
 
-const TODAY = new Date();
-const todayDateOnly = new Date(Date.UTC(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), TODAY.getUTCDate()));
-const todayStr = todayDateOnly.toISOString().slice(0, 10); // YYYY-MM-DD
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const daysBetween = (isoStart, isoEnd) => {
   try {
     const a = new Date(isoStart);
     const b = new Date(isoEnd);
@@ -197,3 +197,4 @@ main().catch((e) => {
   console.error(e);
   process.exitCode = 1;
 });
+
