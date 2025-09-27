@@ -66,17 +66,20 @@ const textOrNull = (s) => (s ? s.trim() : null);
 
 async function loadExisting() {
   try {
-    const raw = await fs.readFile(DATA_PATH, 'utf8');
+    const raw = await fs.readFile(LISTINGS_PATH, 'utf8');
     return JSON.parse(raw);
   } catch {
     return [];
   }
 }
+
+}
 async function saveAll(items) {
   await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(items, null, 2) + '\n', 'utf8');
+  await fs.writeFile(LISTINGS_PATH, JSON.stringify(items, null, 2) + '\n', 'utf8');
   await fs.writeFile(META_PATH, JSON.stringify({ generatedAt: new Date().toISOString() }, null, 2) + '\n', 'utf8');
 }
+
 
 async function fetchHtml() {
   const res = await fetch(TARGET_URL, {
