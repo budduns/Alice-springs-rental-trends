@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Alice Springs Rentals – Daily Auto‑Update</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  https://fonts.googleapis.com
+  ./styles.css
+</head>
+<body>
+  <header class="wrap">
+    <h1>Alice Springs Rentals – Daily Auto‑Update</h1>
+    <p class="subtle">
+      Data derived from the Alice Springs – Greater Region rentals list page on realestate.com.au.
+    </p>
+  </header>
+
+  <section class="wrap controls" aria-label="Filters">
+    <label>
+      Search address
+      <input id="q" type="search" placeholder="e.g. Gillen, Taylor Street" />
+    </label>
+
+    <label>
+      Min beds
+      <input id="minBeds" type="number" min="0" step="1" value="0" />
+    </label>
+
+    <label>
+      Status
+      <select id="status">
+        <option value="all">All</option>
+        <option value="Available">Available</option>
+        <option value="Leased">Leased</option>
+      </select>
+    </label>
+
+    <label>
+      Sort by
+      <select id="sortBy">
+        <option value="status">Status</option>
+        <option value="bedsAsc">Beds ↑</option>
+        <option value="bedsDesc">Beds ↓</option>
+        <option value="priceAsc">Price ↑</option>
+        <option value="priceDesc">Price ↓</option>
+        <option value="daysAsc">Days ↑</option>
+        <option value="daysDesc">Days ↓</option>
+      </select>
+    </label>
+  </section>
+
+  <main class="wrap">
+    <table class="grid" aria-describedby="lastRefreshed">
+      <caption class="sr-only">Alice Springs rental listings</caption>
+      <thead>
+        <tr>
+          <th scope="col">Address</th>
+          <th scope="col">Beds</th>
+          <th scope="col">Price (pw)</th>
+          <th scope="col">Status</th>
+          <th scope="col">Days</th>
+        </tr>
+      </thead>
+      <tbody id="rows" aria-live="polite"></tbody>
+    </table>
+
+    <div id="empty" class="empty hidden" role="status">
+      No listings match your filters.
+    </div>
+
+    <p id="lastRefreshed" class="meta"></p>
+  </main>
+
+  <footer class="wrap footer">
+    <small>
+      Last refreshed is based on the data generation time.  
+      Built with GitHub Pages + a daily GitHub Actions job.
+      https://docs.github.com/en/actionsAbout GitHub Actions</a>.
+    </small>
+  </footer>
+
+    ./app.js</script>
+</body>
+</html>

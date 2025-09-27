@@ -1,0 +1,41 @@
+:root {
+  --bg: #0b0c10;
+  --fg: #e6eef5;
+  --muted: #9fb3c8;
+  --accent: #4fb1ff;
+  --available: #0bb07b;
+  --leased: #ff7f50;
+  --border: #2b3240;
+  --card: #141824;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  color: var(--fg); background: radial-gradient(1200px 800px at 20% -10%, #192036, #0b0c10);
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+header h1 { margin: .5rem 0; }
+.subtle { color: var(--muted); margin-top: 0; }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: .75rem; }
+.controls label { display: grid; gap: .35rem; font-weight: 600; }
+.controls input, .controls select {
+  background: var(--card); border: 1px solid var(--border); color: var(--fg);
+  padding: .55rem .65rem; border-radius: .4rem; outline: none;
+}
+.controls input:focus, .controls select:focus { border-color: var(--accent); }
+
+.grid { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.grid th, .grid td { border-bottom: 1px solid var(--border); padding: .75rem .6rem; vertical-align: middle; }
+.grid tbody tr:hover { background: rgba(79,177,255,.06); }
+.grid a { color: var(--accent); text-decoration: none; }
+.grid a:hover { text-decoration: underline; }
+.badge {
+  display: inline-block; padding: .15rem .45rem; border-radius: .4rem; font-size: .85rem; font-weight: 700;
+}
+.badge.available { background: color-mix(in hsl, var(--available) 30%, transparent); color: var(--available); }
+.badge.leased { background: color-mix(in hsl, var(--leased) 30%, transparent); color: var(--leased); }
+.meta { color: var(--muted); margin-top: .75rem; }
+.empty { margin: 1rem 0; color: var(--muted); }
+.hidden { display: none; }
+.footer { color: var(--muted); margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
