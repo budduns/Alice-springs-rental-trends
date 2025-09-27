@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 import fs from 'fs';
 import path from 'path';
 
-const URL = const URL = 'https://www.realestate.com.au/rent/in-alice+springs+-+greater+region,+nt/list-1?activeSort=relevance&sourcePage=rea:homepage&sourceElement=suburb-select:recent%20searches%20tiles';
+const URL = 'https://www.realestate.com.au/rent/in-alice+springs+-+greater+region,+nt/list-1?activeSort=relevance';
 const LISTINGS_PATH = path.join('data', 'listings.json');
 const META_PATH = path.join('data', '_meta.json');
 
@@ -137,4 +137,5 @@ async function main() {
 }
 
 main();
+
 
