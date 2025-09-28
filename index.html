@@ -3,55 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alice Springs Rentals – Daily Auto-Update</title>
+  <title>Alice Springs Rental Trends</title>
   <link rel="stylesheet" href="styles.css?v=2025-09-29">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header>
-    <h1>Alice Springs Rental Trends</h1>
+    <h1>Alice Springs Rental Trends <nav>
+      <a href="index.html" class="tab active">Listings</a>
+      <a href="dashboard.html" class="tab">Trends</a>
+    </nav></h1>
   </header>
   <main class="container">
-    <div id="controls">
-      <div class="search-wrapper">
-        <i class="fas fa-search"></i>
-        <input id="search" type="text" placeholder="Search address or price..." aria-label="Search listings">
-        <button id="clearSearch" aria-label="Clear search">Clear</button>
-      </div>
-      <input id="minBeds" type="number" min="1" placeholder="Min beds" aria-label="Minimum bedrooms">
-      <select id="statusFilter" aria-label="Filter by status">
-        <option value="">All</option>
-        <option value="Available">Available</option>
-        <option value="Leased">Leased</option>
-      </select>
-      <select id="sort" aria-label="Sort listings">
-        <option value="newFirst">New First</option>
-        <option value="bedsAsc">Beds ↑</option>
-        <option value="bedsDesc">Beds ↓</option>
-        <option value="priceAsc">Price ↑</option>
-        <option value="priceDesc">Price ↓</option>
-        <option value="daysAsc">Days ↑</option>
-        <option value="daysDesc">Days ↓</option>
-      </select>
-      <button class="chip" data-filter="new">New (≤3d)</button>
-      <button class="chip" data-filter="3beds">3+ beds</button>
+    <div id="search-container">
+      <input type="text" id="search-bar" placeholder="Search listings...">
+      <button id="clear-search">Clear</button>
     </div>
-    <div id="paginationTop"></div>
-    <table id="listingsTable">
-      <caption class="sr-only">Rental listings table for Alice Springs</caption>
+    <table id="listings-table">
       <thead>
         <tr>
-          <th>Address</th>
-          <th>Beds</th>
-          <th>Price</th>
-          <th>Status</th>
-          <th>Days</th>
+          <th data-sort="address">Address <span class="sort-icon"></span></th>
+          <th data-sort="beds">Beds <span class="sort-icon"></span></th>
+          <th data-sort="price">Price <span class="sort-icon"></span></th>
+          <th data-sort="daysAvailable">Days Available <span class="sort-icon"></span></th>
+          <th data-sort="status">Status <span class="sort-icon"></span></th>
+          <th>Link</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <div id="paginationBottom"></div>
-    <div aria-live="polite" id="liveRegion"></div>
+    <div id="pagination">
+      <button id="prev-page">Previous</button>
+      <span id="page-info"></span>
+      <button id="next-page">Next</button>
+    </div>
   </main>
   <footer>
     <p>Last refreshed: <span id="lastRefreshed">Loading...</span></p>
