@@ -27,8 +27,10 @@ async function loadData() {
     setupEventListeners();
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('lastRefreshed').textContent = 'Error loading data';
-    document.querySelector('#listings-table tbody').innerHTML = '<tr><td colspan="6">Failed to load listings. Check console for details.</td></tr>';
+    const lastRefreshed = document.getElementById('lastRefreshed');
+    if (lastRefreshed) lastRefreshed.textContent = 'Error loading data';
+    const tbody = document.querySelector('#listings-table tbody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6">Failed to load listings. Check console for details.</td></tr>';
   }
 }
 
