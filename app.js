@@ -29,8 +29,10 @@ async function loadData() {
     console.error('Error loading data:', error);
     const lastRefreshed = document.getElementById('lastRefreshed');
     if (lastRefreshed) lastRefreshed.textContent = 'Error loading data';
+    else console.warn('lastRefreshed element not found');
     const tbody = document.querySelector('#listings-table tbody');
     if (tbody) tbody.innerHTML = '<tr><td colspan="6">Failed to load listings. Check console for details.</td></tr>';
+    else console.warn('listings-table tbody not found');
   }
 }
 
@@ -126,3 +128,4 @@ function setupEventListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', loadData);
+
