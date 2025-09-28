@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alice Springs Rental Trends – Dashboard</title>
+  <link rel="stylesheet" href="styles.css?v=2025-09-29">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Alice Springs Rental Trends <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Listings</a></h1>
+  </header>
+  <main class="container">
+    <section id="stats-cards">
+      <div class="stat-card">
+        <h3>Total Available</h3>
+        <p id="total-available">Loading...</p>
+      </div>
+      <div class="stat-card">
+        <h3>Avg Days on Market</h3>
+        <p id="avg-days">Loading...</p>
+      </div>
+      <div class="stat-card">
+        <h3>Avg Weekly Price</h3>
+        <p id="avg-price">Loading...</p>
+      </div>
+      <div class="stat-card">
+        <h3>New This Week</h3>
+        <p id="new-week">Loading...</p>
+      </div>
+    </section>
+    <section id="charts">
+      <canvas id="beds-chart"></canvas>
+      <canvas id="suburb-chart"></canvas>
+      <canvas id="price-trend-chart"></canvas>
+    </section>
+    <section id="weekly-summary">
+      <h3>Weekly/Monthly Trends</h3>
+      <p id="weekly-available">Loading...</p>
+      <p id="monthly-leased">Loading...</p>
+      <p id="price-change">Loading...</p>
+    </section>
+  </main>
+  <footer>
+    <p>Last refreshed: <span id="lastRefreshed">Loading...</span></p>
+    <p>&copy; 2025 Alice Springs Rental Trends. All Rights Reserved.</p>
+  </footer>
+  <script src="app.js?v=2025-09-29"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
