@@ -244,108 +244,109 @@
     "beds": 2,
     "price": "$485 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-larapinta-442517220",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "2/1 Harvey Street, Braitling, NT 0870",
     "beds": 1,
     "price": "$320 per week",
     "link": "https://www.realestate.com.au/property-house-nt-braitling-440883156",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "25/1 Barrett Drive, Desert Springs, NT 0870",
     "beds": 2,
     "price": "$480 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-desert+springs-442617420",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "20/50 South Terrace, The Gap, NT 0870",
     "beds": 2,
     "price": "$410 per week",
     "link": "https://www.realestate.com.au/property-townhouse-nt-the+gap-442614336",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "47/26 Palm Circuit, Ross, NT 0873",
     "beds": 1,
     "price": "$380 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-ross-442611224",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "1/58 Bradshaw Drive, Gillen, NT 0870",
     "beds": 2,
     "price": "$520 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-gillen-442632788",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "2/2 Gnoilya Street, The Gap, NT 0870",
     "beds": 2,
     "price": "$500 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-the+gap-430407870",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "119 Gap Road, The Gap, NT, 0870",
     "beds": 1,
     "price": "$350 per week",
     "link": "https://www.realestate.com.au/property-unit-nt-the+gap-442017988",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   },
   {
     "address": "46 Taylor Street, Araluen, NT 0870",
     "beds": 3,
     "price": "$780 per week",
     "link": "https://www.realestate.com.au/property-house-nt-araluen-405307115",
-    "status": "Available",
+    "status": "Leased",
     "firstSeen": "2025-09-28",
     "lastSeen": "2025-09-28",
     "lastSeenAvailable": "2025-09-28",
     "daysAvailable": 1,
-    "daysToLease": null
+    "daysToLease": 1
   }
 ]
+
 
