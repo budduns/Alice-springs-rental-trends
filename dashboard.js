@@ -28,8 +28,11 @@ function computeMetrics(listings) {
   const available = listings.filter(l => l.status === 'Available');
   const totalAvailable = available.length;
   const avgDays = Math.round(available.reduce((sum, l) => sum + l.daysAvailable, 0) / totalAvailable) || 0;
-  const prices = available.map(l => parseInt(l.price.replace(/\D/g, '')) || 0).filter(p => p > 0);
-  const avgPrice = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length) || 0;
+  const prices = available.map(l => {
+    const priceNum = parseInt(l.price.replace(/\D/g, '')) || 0;
+    return priceNum > 0 ? priceNum : null; // Filter out invalid prices
+  }).filter(p => p !== null); // Remove nulls from invalid entries
+  const avgPrice = prices.length > 0 ? Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length) : 0;
   const newWeek = available.filter(l => daysBetween(l.firstSeen, todayStr) <= 7).length;
 
   document.getElementById('total-available').textContent = totalAvailable;
