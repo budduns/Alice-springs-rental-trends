@@ -16,33 +16,45 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const today = new Date();
-const todayStr = today.toISOString().split('T')[0];
-
 async function fetchPage() {
   let attempts = 0;
+  let html = null;
   while (attempts < 2) {
     try {
       const response = await fetch(URL, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; RentalScraper/1.0; +https://github.com/budduns/Alice-springs-rental-trends)'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
         }
       });
-      if (response.status === 429 || response.status === 503) {
+      if (!response.ok) {
+        console.error(`HTTP error! Status: ${response.status}`);
         attempts++;
         await sleep(5000);
         continue;
       }
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      html = await response.text();
+      if (!html || html.trim() === '') {
+        console.error('Empty or invalid HTML response');
+        attempts++;
+        await sleep(5000);
+        continue;
       }
-      return await response.text();
+      console.log('Fetched HTML successfully');
+      return html;
     } catch (error) {
+      console.error('Fetch error:', error.message);
       attempts++;
       if (attempts < 2) await sleep(5000);
-      else throw error;
     }
   }
+  console.error('Failed to fetch page after retries');
+  return null; // Return null if all attempts fail
 }
 
 function extractListings($) {
@@ -80,6 +92,10 @@ function extractListings($) {
 async function main() {
   try {
     const html = await fetchPage();
+    if (!html) {
+      console.log('No valid HTML to parse, exiting without changes.');
+      return;
+    }
     const $ = load(html);
     const newListings = extractListings($);
     if (newListings.length === 0) {
@@ -132,10 +148,12 @@ async function main() {
     fs.writeFileSync(LISTINGS_PATH, JSON.stringify(updatedListings, null, 2));
     fs.writeFileSync(META_PATH, JSON.stringify({ generatedAt: today.toISOString() }, null, 2));
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in main:', error);
   }
 }
 
+const today = new Date();
+const todayStr = today.toISOString().split('T')[0];
 main();
 
 
