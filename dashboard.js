@@ -1,7 +1,7 @@
 let charts = {};
 
 async function loadData() {
-  const listings = []; // Local scope to avoid redeclaration
+  let listings; // Use let for reassignment
   try {
     console.log('Fetching listings.json...');
     const response = await fetch('data/listings.json');
