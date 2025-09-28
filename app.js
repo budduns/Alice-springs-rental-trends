@@ -23,16 +23,20 @@ async function loadData() {
     const tz = 'Australia/Brisbane';
     const refreshed = new Date(meta.generatedAt).toLocaleString('en-AU', { timeZone: tz, dateStyle: 'full', timeStyle: 'short' });
     document.getElementById('lastRefreshed').textContent = refreshed || 'N/A';
-    renderTable();
-    setupEventListeners();
   } catch (error) {
     console.error('Error loading data:', error);
     const lastRefreshed = document.getElementById('lastRefreshed');
     if (lastRefreshed) lastRefreshed.textContent = 'Error loading data';
     else console.warn('lastRefreshed element not found');
-    const tbody = document.querySelector('#listings-table tbody');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="6">Failed to load listings. Check console for details.</td></tr>';
-    else console.warn('listings-table tbody not found');
+  }
+  if (document.readyState === 'complete') {
+    renderTable();
+    setupEventListeners();
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTable();
+      setupEventListeners();
+    });
   }
 }
 
