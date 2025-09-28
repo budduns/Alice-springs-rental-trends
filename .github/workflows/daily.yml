@@ -16,14 +16,14 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-     - name: Run scraper via proxy
-  run: |
-    export https_proxy=http://proxy-chain.openproxy.space:8080
-    export HTTP_PROXY=http://proxy-chain.openproxy.space:8080
-    npm run scrape
-  env:
-    https_proxy: http://proxy-chain.openproxy.space:8080
-    HTTP_PROXY: http://proxy-chain.openproxy.space:8080
+      - name: Run scraper via proxy
+        run: |
+          export https_proxy=http://proxy-chain.openproxy.space:8080
+          export HTTP_PROXY=http://proxy-chain.openproxy.space:8080
+          npm run scrape
+        env:
+          https_proxy: http://proxy-chain.openproxy.space:8080
+          HTTP_PROXY: http://proxy-chain.openproxy.space:8080
       - name: Commit changes
         run: |
           git config --global user.name 'GitHub Action'
@@ -31,4 +31,3 @@ jobs:
           git add data/ || true
           git commit -m "Update listings" || echo "No changes to commit"
           git push
-
