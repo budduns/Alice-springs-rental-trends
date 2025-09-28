@@ -1,18 +1,30 @@
-let listings = [];
 let charts = {};
 
 async function loadData() {
-  listings = await fetch('data/listings.json').then(r => r.json());
-  const meta = await fetch('data/_meta.json').then(r => r.json());
-  const tz = 'Australia/Brisbane';
-  const refreshed = new Date(meta.generatedAt).toLocaleString('en-AU', { timeZone: tz, dateStyle: 'full', timeStyle: 'short' });
-  document.getElementById('lastRefreshed').textContent = refreshed || 'N/A';
+  const listings = []; // Local scope to avoid redeclaration
+  try {
+    console.log('Fetching listings.json...');
+    const response = await fetch('data/listings.json');
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    listings = await response.json();
+    console.log('Listings loaded:', listings.length, 'items');
+    const metaResponse = await fetch('data/_meta.json');
+    if (!metaResponse.ok) throw new Error(`HTTP error for _meta.json! Status: ${metaResponse.status}`);
+    const meta = await metaResponse.json();
+    const tz = 'Australia/Brisbane';
+    const refreshed = new Date(meta.generatedAt).toLocaleString('en-AU', { timeZone: tz, dateStyle: 'full', timeStyle: 'short' });
+    document.getElementById('lastRefreshed').textContent = refreshed || 'N/A';
 
-  computeMetrics();
-  renderCharts();
+    computeMetrics(listings);
+    renderCharts(listings);
+  } catch (error) {
+    console.error('Error loading data:', error);
+    const lastRefreshed = document.getElementById('lastRefreshed');
+    if (lastRefreshed) lastRefreshed.textContent = 'Error loading data';
+  }
 }
 
-function computeMetrics() {
+function computeMetrics(listings) {
   const available = listings.filter(l => l.status === 'Available');
   const totalAvailable = available.length;
   const avgDays = Math.round(available.reduce((sum, l) => sum + l.daysAvailable, 0) / totalAvailable) || 0;
@@ -43,7 +55,7 @@ function computeMetrics() {
   });
 
   // Avg price per bed/suburb (simplified)
-  const pricePerBed = {};  // e.g., {1: 320, 2: 450}
+  const pricePerBed = {};
   available.forEach(l => {
     const bedAvg = parseInt(l.price.replace(/\D/g, '')) / l.beds;
     pricePerBed[l.beds] = ((pricePerBed[l.beds] || 0) + bedAvg) / 2;  // Avg over listings
@@ -52,7 +64,9 @@ function computeMetrics() {
   return { suburbData, bedsData, pricePerBed, available };
 }
 
-function renderCharts() {
+function renderCharts(listings) {
+  const { suburbData, bedsData, pricePerBed, available } = computeMetrics(listings);
+
   const ctxBeds = document.getElementById('beds-chart').getContext('2d');
   charts.beds = new Chart(ctxBeds, {
     type: 'bar',
